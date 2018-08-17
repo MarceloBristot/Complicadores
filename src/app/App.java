@@ -1,9 +1,9 @@
 package app;
 
-import analisadorLexico.AnalisadorLexico;
+import compilador.Compilador;
 
 public class App {
     public static void main(String[] args) {
-        new AnalisadorLexico().setVisible(true);
+        new Compilador().setVisible(true);
     }
 }
