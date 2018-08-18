@@ -1,0 +1,61 @@
+package enums;
+
+public enum Simbolos {
+    PROGRAM(1),
+    LABEL(2),
+    CONST(3),
+    VAR(4),
+    PROCEDURE(5),
+    BEGIN(6),
+    END(7),
+    INTEGER(8),
+    ARRAY(9),
+    OF(10),
+    CALL(11),
+    GOTO(12),
+    IF(13),
+    THEN(14),
+    ELSE(15),
+    WHILE(16),
+    DO(17),
+    REPEAT(18),
+    UNTIL(19),
+    READLN(20),
+    WRITELN(21),
+    OR(22),
+    AND(23),
+    NOT(24),
+    IDENTIFICADOR(25),
+    INTEIRO(26),
+    FOR(27),
+    TO(28),
+    CASE(29),
+    CRUZ(30),
+    HIFEN(31),
+    ASTERISCO(32),
+    BARRA(33),
+    A_COLCHETE(34),
+    F_COLCHETE(35),
+    A_PARENTESES(36),
+    F_PARENTESES(37),
+    RECEBE(38),
+    DOIS_PONTOS(39),
+    IGUAL(40),
+    MAIOR(41),
+    MAIOR_IGUAL(42),
+    MENOR(43),
+    MENOR_IGUAL(44),
+    DIFERENTE(45),
+    VIRGULA(46),
+    PONTO_VIRGULA(47),
+    LITERAL(48),
+    PONTO(49),
+    PONTO_DUPLO(50),
+    CIFRAO(51);
+
+
+    public int valueSimb;
+    Simbolos(int valor){
+        valueSimb = valor;
+    }
+}
