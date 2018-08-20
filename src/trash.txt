@@ -1,0 +1,103 @@
+//Primeiro modelo de classificação de tokens
+
+//Caso seja letra
+            else if(c.isAlphabetic(c)){
+                word += c.toString();
+            }
+            //Caso seja dígito
+            else if(c.isDigit(c))
+                word += c.toString();
+            //TODO Tratar erro de "variável" que começa com número
+
+            //Caso seja delimitador
+            else if (IsDel(c)){
+                //Início de literal
+                if(c.toString().equals("'"))
+                    isLit = true;
+                else{
+                    //Delimitador que pode ser composto
+                    if(IsDelComp(c0)){
+                        if(c.toString().equals(">") || c.toString().equals("=") || c.toString().equals(".")){
+                            //Duplo
+                             }else {
+                            //c0 deve ser salvo, c para análise
+                        }
+                    }
+                    if(IsDelComp(c.toString())){
+                        //Pode ser composto, não salvar ainda
+                    }
+                    else{
+                        //Não é composto, salvar
+                    }
+                    //Salvar palavra anterior
+                }
+                word = c.toString();
+            }
+
+            //Armazena caracter atual
+            c0 = c.toString();
+//
+
+//Outra Tentativa, c/possibilidade de reaproveitamento
+
+            if(c0 == ""){
+                //Primeira iteração
+            }
+            else {
+                //Caso seja literal
+                if (isLit) {
+                    word += c;
+                    if (c.toString().equals("'")) {
+                        token.put(48,"LITERAL");
+                        tokenStack.push(token);
+                        isLit = false;
+                    }
+                }
+                //Caso contrário
+                else{
+                    //Alfanumérico
+                    if(c.isLetterOrDigit(c)){
+                        //Caso anterior seja um que poderia ser composto
+                        if(IsDelComp(c0)){
+                            System.out.println("Elemento duplo!");
+                            //Salvar caracter antigo
+                        }
+                        System.out.println("Letra/dígito!");
+                        word += c.toString();
+                    }
+                    //Delimitador
+                    else if(IsDel(c.toString())){
+                        if(c.toString().equals("'")){
+                            if(word!="")
+                                ArmazenaToken(word);
+                            System.out.println("Literal!");
+                            isLit = true;
+                        }
+                        else{
+                            if(word != ""){
+                                System.out.println(word);
+                                ArmazenaToken(word);
+                            }
+                            else{
+                                if(IsDelComp(c0)){
+                                    if(c.toString().equals(">") || c.toString().equals("=") || c.toString().equals(".")){
+                                    //Duplo
+                                }
+                            }
+                                else{
+                                    if(IsDelComp(c.toString())){
+                                        //Pode ser duplo, aguardar
+                                    }
+                                    else{
+                                        ArmazenaToken(c.toString());
+                                    }
+                                }
+                            }
+                            word = "";
+                        }
+                    }
+                }
+            }
+            //Armazena caracter anterior
+            c0 = c.toString();
+//

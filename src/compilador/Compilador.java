@@ -9,6 +9,9 @@ import java.io.IOException;
 
 public class Compilador extends JFrame {
 
+    private String[] colunas = {"Código, Símbolo"};
+    private JTable table = new JTable(null,colunas);
+
     private JTextArea textArea = new JTextArea("");
     private JScrollPane scrollPane = new JScrollPane(textArea);
 
@@ -41,6 +44,8 @@ public class Compilador extends JFrame {
         c.setLayout(null);
         setContentPane(c);
 
+
+        table.setBounds(100,800,100,100);
 
         //Ações dos botões da barra de menu
         //Opção "Novo"
