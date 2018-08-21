@@ -8,7 +8,6 @@ public class Token {
     private int cod;
     private String word;
     private static Stack<Map> tokenStack = new Stack();
-    private static Map<Integer,String> token = new HashMap<>();
 
 
     public Token(){
@@ -25,19 +24,33 @@ public class Token {
         //Booleano para saber se é literal
         boolean isLit = false;
 
+        //Booleano para saber se é comentário
+        boolean isCom = false;
+
+        //Mensagem
+        System.out.println("Compilando...");
+
         //Analisar cada caracter do código
         for(Character c : code.toCharArray()){
             //Novo ciclo de análise
             if(word == ""){
                 type = EncontraTipo(c);
             }
-            //Caso seja início/fim de literal
+            //Caso seja início/fim ou literal
             if(c.toString().equals("'") || isLit){
-                word += c;
+                if(isLit)
+                    word += c;
+                //Caso seja início/fim
                 if(c.toString().equals("'")){
+                    //Caso seja fim
                     if(isLit){
                         ArmazenaToken(word,"L");
                         word = "";
+                    }
+                    //Caso seja início
+                    else{
+                        ArmazenaToken(word,type);
+                        word = c.toString();
                     }
                     isLit = !(isLit);
                 }
@@ -69,8 +82,10 @@ public class Token {
                 if(c.isDigit(c))
                     word += c.toString();
                 //Erro de iniciar variável com dígito/concatenar dígito-letra
-                else if(c.isAlphabetic(c))
+                else if(c.isAlphabetic(c)){
                     System.out.println("ERRO");
+                    //Janela erro
+                }
                 else{
                     //Checa se caracter é válido
                     IsDel(c.toString());
@@ -91,12 +106,23 @@ public class Token {
 
             //Delimitador
             else if(type == "D"){
-                //Caso tanto o item anterior quanto o atual sejam delimitadores, então é um símbolo composto
+                //Caso o item anterior seja delimitador possivelmente composto
                 if(IsDelComp(word)){
-                    if(IsDel(c.toString()))
+                    //Caso o atual também seja, logo é um símbolo composto
+                    if(SecComp(word,c.toString()))
                         word += c.toString();
+                    //Armazena variável anterior, não armazenada por não saber se seria composta ou não
                     ArmazenaToken(word, "D");
-                    word = "";
+
+                    //TODO Verificar caracteres
+//                    //Se atual pode ser composto, não armazenar token, porém salvar caracter
+//                    if(IsDelComp(c.toString()))
+//                        word = c.toString();
+//                    //Caso contrário, armazenar
+//                    else{
+//                        ArmazenaToken(c.toString(), EncontraTipo(c));
+//                        word ="";
+//                    }
                 }
 //                else{
                  else if(!(c.toString().equals(" ")) && !(c.toString().equals("\n"))){
@@ -134,7 +160,22 @@ public class Token {
 
     //Checa se caracter é delimitador com possibilidade de ser composto
     private static boolean IsDelComp(String c){
-        if(c.equals("<") || c.equals(">") || c.equals(".") || c.equals(":"))
+        if(c.equals("<") || c.equals(">") || c.equals(".") || c.equals(":") || c.equals("("))
+            return true;
+        else
+            return false;
+    }
+
+    private static boolean SecComp(String c0, String c){
+        if(c0.equals("<") && (c.equals(">") || c.equals("=")))
+            return true;
+        else if(c0.equals(">") && c.equals("="))
+            return true;
+        else if(c0.equals(".") && c.equals("."))
+            return true;
+        else if(c0.equals(":") && c.equals("="))
+            return true;
+        else if (c0.equals("(") && c.equals("*"))
             return true;
         else
             return false;
@@ -142,26 +183,71 @@ public class Token {
 
     //Armazena Token em pilha
     private static Map<Integer, String> ArmazenaToken(String word, String type){
+        Map<Integer,String> token = new HashMap<>();
         if(word.equals(" ")){return null;}
         //word = word.toUpperCase();
-        switch (word.toUpperCase()){
-            case "PROGRAM": token.put(1, "PROGRAM");break;
-            case "LABEL": token.put(2, "LABEL");break;
-            case "CONST": token.put(3, "CONST");break;
-            case "VAR": token.put(4, "VAR");break;
-            case "PROCEDURE": token.put(5, "PROCEDURE");break;
-            case "BEGIN": token.put(6, "BEGIN");break;
-            case "END": token.put(7, "END");break;
-            case "INTEGER": token.put(8, "INTEGER");break;
-            case "ARRAY": token.put(9, "ARRAY");break;
-            case "OF": token.put(10, "OF");break;
-            case "CALL": token.put(11, "CALL");break;
-            case "GOTO": token.put(12, "GOTO");break;
-            case "IF": token.put(13, "IF");break;
-            case "THEN": token.put(14, "THEN");break;
-            case "ELSE": token.put(15, "ELSE");break;
+        if(type == "A"){
+            switch (word.toUpperCase()){
+                case "PROGRAM": token.put(1, "PROGRAM");break;
+                case "LABEL": token.put(2, "LABEL");break;
+                case "CONST": token.put(3, "CONST");break;
+                case "VAR": token.put(4, "VAR");break;
+                case "PROCEDURE": token.put(5, "PROCEDURE");break;
+                case "BEGIN": token.put(6, "BEGIN");break;
+                case "END": token.put(7, "END");break;
+                case "INTEGER": token.put(8, "INTEGER");break;
+                case "ARRAY": token.put(9, "ARRAY");break;
+                case "OF": token.put(10, "OF");break;
+                case "CALL": token.put(11, "CALL");break;
+                case "GOTO": token.put(12, "GOTO");break;
+                case "IF": token.put(13, "IF");break;
+                case "THEN": token.put(14, "THEN");break;
+                case "ELSE": token.put(15, "ELSE");break;
+                case "WHILE": token.put(16,"WHILE");break;
+                case "DO": token.put(17,"DO");break;
+                case "REPEAT": token.put(18,"REPEAT");break;
+                case "UNTIL": token.put(19,"UNTIL");break;
+                case "READLN": token.put(20,"READLN");break;
+                case "WRITELN": token.put(21,"WRITELN");break;
+                case "OR": token.put(22,"OR");break;
+                case "AND": token.put(23,"AND");break;
+                case "NOT": token.put(24,"NOT");break;
+                case "FOR": token.put(27,"FOR");break;
+                case "TO": token.put(28,"TO");break;
+                case "CASE": token.put(29,"CASE");break;
+                default: token.put(25,"IDENTIFICADOR");break;
+            }
         }
-        System.out.println(word);
+        else if(type == "N")
+            token.put(26,"INTEIRO");
+        else if(type == "L")
+            token.put(48,"LITERAL");
+        else if(type == "D"){
+            switch (word){
+                case "+": token.put(30, "CRUZ");break;
+                case "-": token.put(31, "HÍFEN");break;
+                case "*": token.put(32, "ASTERISCO");break;
+                case "/": token.put(33, "BARRA");break;
+                case "[": token.put(34, "A_COLCHETE");break;
+                case "]": token.put(35, "F_COLCHETE");break;
+                case "(": token.put(36, "A_PARENTESES");break;
+                case ")": token.put(37, "F_PARENTESES");break;
+                case ":=": token.put(38, "RECEBE");break;
+                case ":": token.put(39, "DOIS_PONTOS");break;
+                case "=": token.put(40, "IGUAL");break;
+                case ">": token.put(41, "MAIOR");break;
+                case ">=": token.put(42, "MAIOR_IGUAL");break;
+                case "<": token.put(43, "MENOR");break;
+                case "<=": token.put(44, "MENOR_IGUAL");break;
+                case "<>": token.put(45, "DIFERENTE");break;
+                case ",": token.put(46, "VIRGULA");break;
+                case ";": token.put(47, "PONTO_VIRGULA");break;
+                case ".": token.put(49, "PONTO");break;
+                case "..": token.put(50, "PONTO_DUPLO");break;
+                case "$": token.put(51, "CIFRÃO");break;
+            }
+        }
+        System.out.println(token + " - " + word);
         return null;
         //TODO Criar função de armazenamento de Tokens
     }
