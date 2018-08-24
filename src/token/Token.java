@@ -1,5 +1,7 @@
 package token;
 
+import compilador.Compilador;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -8,6 +10,9 @@ public class Token {
     private int cod;
     private String word;
     private static Stack<Map> tokenStack = new Stack();
+
+    //Booleano para saber se é comentário
+    private static boolean isCom = false;
 
 
     public Token(){
@@ -24,20 +29,31 @@ public class Token {
         //Booleano para saber se é literal
         boolean isLit = false;
 
-        //Booleano para saber se é comentário
-        boolean isCom = false;
-
         //Mensagem
         System.out.println("Compilando...");
+        isCom = false;
+
+        if(code.equals("")){
+            Compilador.Erro("Código em branco!");
+        }
 
         //Analisar cada caracter do código
         for(Character c : code.toCharArray()){
             //Novo ciclo de análise
             if(word == ""){
-                type = EncontraTipo(c);
+                type = encontraTipo(c);
+            }
+            if(word == "(*" || isCom){
+                if(word.equals("*") && c.toString().equals(")")){
+                    isCom = false;
+                    ArmazenaToken("COMENTÀRIO","C");
+                    word = "";
+                    continue;
+                }
+                word = c.toString();
             }
             //Caso seja início/fim ou literal
-            if(c.toString().equals("'") || isLit){
+            else if(c.toString().equals("'") || isLit){
                 if(isLit)
                     word += c;
                 //Caso seja início/fim
@@ -83,8 +99,7 @@ public class Token {
                     word += c.toString();
                 //Erro de iniciar variável com dígito/concatenar dígito-letra
                 else if(c.isAlphabetic(c)){
-                    System.out.println("ERRO");
-                    //Janela erro
+                    Compilador.Erro("Variável iniciando com dígito!");
                 }
                 else{
                     //Checa se caracter é válido
@@ -106,30 +121,38 @@ public class Token {
 
             //Delimitador
             else if(type == "D"){
+                //Booleano para evitar três símbolos
+                boolean registrado = false;
                 //Caso o item anterior seja delimitador possivelmente composto
                 if(IsDelComp(word)){
                     //Caso o atual também seja, logo é um símbolo composto
-                    if(SecComp(word,c.toString()))
+                    if(SecComp(word,c.toString())){
                         word += c.toString();
+                        registrado = true;
+                    }
                     //Armazena variável anterior, não armazenada por não saber se seria composta ou não
+                    //TODO Arrumar duplo composto
                     ArmazenaToken(word, "D");
 
-                    //TODO Verificar caracteres
-//                    //Se atual pode ser composto, não armazenar token, porém salvar caracter
-//                    if(IsDelComp(c.toString()))
-//                        word = c.toString();
-//                    //Caso contrário, armazenar
-//                    else{
-//                        ArmazenaToken(c.toString(), EncontraTipo(c));
-//                        word ="";
-//                    }
+                    //Se atual pode ser composto, não armazenar token, porém salvar caracter
+                    //if(IsDelComp(c.toString())){
+                        word = "";
+                        type = encontraTipo(c);
+                    //    }
+                    //Caso contrário, armazenar
+                    //else{
+                    if((IsDelComp(c.toString())) && !(registrado)){
+                        //ArmazenaToken(c.toString(), encontraTipo(c));
+                        word = c.toString();
+                    }
                 }
-//                else{
+                //Caso o caracter anterior não possa ser composto
                  else if(!(c.toString().equals(" ")) && !(c.toString().equals("\n"))){
+                     if(IsDelComp(c.toString()))
+                         word = c.toString();
+                     else
                         ArmazenaToken(c.toString(),"D");
                     }
-//                    else
-//                        ArmazenaToken(word,"D");
                     if(c.isAlphabetic(c)){
                         word += c.toString();
                         type = "A";
@@ -139,10 +162,13 @@ public class Token {
                         type = "N";
                     }
                 }
-//            }
+                //Nenhuma das anteriores
             else
-                System.out.println("ERRO");
+                System.out.println("ERRO - SEM DESCRIÇÃO");
         }
+        //Caso a última palavra não tenha sido armazenada
+        if(word != "")
+            ArmazenaToken(word, encontraTipo(word.charAt(word.length())));
         return tokenStack;
     }
 
@@ -175,8 +201,10 @@ public class Token {
             return true;
         else if(c0.equals(":") && c.equals("="))
             return true;
-        else if (c0.equals("(") && c.equals("*"))
+        else if (c0.equals("(") && c.equals("*")){
+            isCom = true;
             return true;
+        }
         else
             return false;
     }
@@ -245,14 +273,25 @@ public class Token {
                 case ".": token.put(49, "PONTO");break;
                 case "..": token.put(50, "PONTO_DUPLO");break;
                 case "$": token.put(51, "CIFRÃO");break;
+                case "(*": return null;
+                default:
+                    Compilador.Erro("Erro - Caracter "+ word +" invalido");break;
             }
+        }
+        else if(type == "C"){
+            System.out.println(word);
+            return null;
+        }
+        else {
+            System.err.println("ERRO - SEM REGISTRO VÁLIDO");
+            return null;
         }
         System.out.println(token + " - " + word);
         return null;
         //TODO Criar função de armazenamento de Tokens
     }
 
-    private static String EncontraTipo(Character c){
+    private static String encontraTipo(Character c){
         if(c.isAlphabetic(c))
             return "A";
         else if(c.isDigit(c))

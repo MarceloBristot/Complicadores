@@ -106,4 +106,8 @@ public class Compilador extends JFrame {
         //TODO Barra de rolagem na área de texto
 
     }
+
+    public static void Erro(String msg){
+        JOptionPane.showMessageDialog(null,msg,"Erro",JOptionPane.ERROR_MESSAGE);
+    }
 }
