@@ -168,7 +168,7 @@ public class Token {
         }
         //Caso a última palavra não tenha sido armazenada
         if(word != "")
-            ArmazenaToken(word, encontraTipo(word.charAt(word.length())));
+            ArmazenaToken(word, type);
         return tokenStack;
     }
 

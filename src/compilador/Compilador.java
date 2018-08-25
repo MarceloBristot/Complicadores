@@ -56,7 +56,7 @@ public class Compilador extends JFrame {
 
         //Opção "Abrir"
         menuOpen.addActionListener(e->{
-            //TODO Opção de Salvar
+            //TODO Opção de Abrir
             fileChooser.showOpenDialog(this);
             path = fileChooser.getSelectedFile().getPath();
             try {
@@ -104,6 +104,8 @@ public class Compilador extends JFrame {
         c.add(textArea);
         c.add(scrollPane);
         //TODO Barra de rolagem na área de texto
+
+
 
     }
 
