@@ -1,11 +1,13 @@
 package compilador;
 
+import analisadorSintatico.AnalisadorSintatico;
 import arquivo.Arquivo;
 import token.Token;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.Map;
 
 public class Compilador extends JFrame {
 
@@ -14,6 +16,13 @@ public class Compilador extends JFrame {
 
     private JTextArea textArea = new JTextArea("");
     private JScrollPane scrollPane = new JScrollPane(textArea);
+    private static JTextArea tokensArea = new JTextArea("");
+
+    private static JTextArea lineArea = new JTextArea("");
+
+    private JTextArea sintArea = new JTextArea("");
+
+
 
     private JMenuBar menuBar = new JMenuBar();
     //Arquivo
@@ -36,7 +45,7 @@ public class Compilador extends JFrame {
         //Configurações da tela
         super("Compilador");
         setResizable(false);
-        setBounds(150, 50, 900, 600);
+        setBounds(150, 50, 1100, 600);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         //Container para incluir recursos
@@ -45,7 +54,7 @@ public class Compilador extends JFrame {
         setContentPane(c);
 
 
-        table.setBounds(100,800,100,100);
+        table.setBounds(100,500,100,100);
 
         //Ações dos botões da barra de menu
         //Opção "Novo"
@@ -78,7 +87,11 @@ public class Compilador extends JFrame {
 
         //Opção Compilar
         menuCompile.addActionListener(e->{
-            Token.Compile(textArea.getText());
+            //Mensagem
+            System.out.println("Compilando...");
+
+//            System.out.println(Token.Compile(textArea.getText()));
+            System.out.println(AnalisadorSintatico.Analisar(textArea.getText()));
         });
 
         //Opção "Sobre"
@@ -99,15 +112,43 @@ public class Compilador extends JFrame {
         menuBar.add(menuHelp);
         setJMenuBar(menuBar);
 
+        //Caixa para visualização de análise sintática
+        sintArea.setEditable(false);
+        sintArea.setBounds(700,0,500,20);
+        c.add(sintArea);
+
+        //Caixa para visualização dos tokens - SOLUÇÃO ALTERNATIVA PROVISÓRIA
+        tokensArea.setEditable(false);
+        tokensArea.setRows(10);
+        tokensArea.setBounds(700,70,500,530);
+        JScrollPane scroll = new JScrollPane(tokensArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        c.add(scroll);
+        c.add(tokensArea);
+
+
         //Caixa de texto para edição
-        textArea.setBounds(0,0,800,600);
+        textArea.setBounds(50,0,600,600);
         c.add(textArea);
         c.add(scrollPane);
         //TODO Barra de rolagem na área de texto
 
-
-
+        //Caixa de contagem de linha
+        lineArea.setBounds(0,0,25,600);
+        lineArea.setEditable(false);
+        lineArea.setText("1");
+        c.add(lineArea);
     }
+
+    public static void MostraToken(Map token, String word){
+        if(token == null && word == null)
+            tokensArea.setText("Compilando arquivo... \n");
+        else
+            tokensArea.setText(tokensArea.getText() + token + "'" + word + "' \n");
+    }
+
+//    public static void AtualizaContagem(int n){
+//        lineArea.setText(lineArea.getText() + "\n" + n);
+//    }
 
     public static void Erro(String msg){
         JOptionPane.showMessageDialog(null,msg,"Erro",JOptionPane.ERROR_MESSAGE);

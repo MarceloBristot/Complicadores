@@ -30,7 +30,12 @@ public class Token {
         boolean isLit = false;
 
         //Mensagem
-        System.out.println("Compilando...");
+        System.out.println("Realizando análise léxica...");
+
+        //Limpar tela de apresentação de tokens
+        Compilador.MostraToken(null,null);
+
+        //Começa como não comentado
         isCom = false;
 
         if(code.equals("")){
@@ -46,7 +51,7 @@ public class Token {
             if(word == "(*" || isCom){
                 if(word.equals("*") && c.toString().equals(")")){
                     isCom = false;
-                    ArmazenaToken("COMENTÀRIO","C");
+                    ArmazenaToken("COMENTÁRIO","C");
                     word = "";
                     continue;
                 }
@@ -73,7 +78,7 @@ public class Token {
             }
             //Alfabético
             else if(type == "A"){
-                if(c.isLetterOrDigit(c))
+                if(c.isLetterOrDigit(c) || c.toString().equals("_"))
                     word += c;
                 else{
                     //Checa se caracter é válido
@@ -87,7 +92,7 @@ public class Token {
                         word = c.toString();
                         //Salvar a palavra e aguardar, pode ou não ser delimitador composto
                     }
-                    else if (!(c.toString().equals(" ")) || !(c.toString().equals("\n"))){
+                    else if (!(c.toString().equals(" ")) && !(c.toString().equals("\n"))){
                         ArmazenaToken(c.toString(), "D");
                     }
                 }
@@ -98,7 +103,7 @@ public class Token {
                 if(c.isDigit(c))
                     word += c.toString();
                 //Erro de iniciar variável com dígito/concatenar dígito-letra
-                else if(c.isAlphabetic(c)){
+                else if(c.isAlphabetic(c) || c.toString().equals("_")){
                     Compilador.Erro("Variável iniciando com dígito!");
                 }
                 else{
@@ -113,7 +118,7 @@ public class Token {
                         word = c.toString();
                         //Salvar a palavra e aguardar, pode ou não ser delimitador composto
                     }
-                    else if (!(c.toString().equals(" ")) || !(c.toString().equals("\n"))){
+                    else if (!(c.toString().equals(" ")) && !(c.toString().equals("\n"))){
                         ArmazenaToken(c.toString(), "D");
                     }
                 }
@@ -153,7 +158,7 @@ public class Token {
                      else
                         ArmazenaToken(c.toString(),"D");
                     }
-                    if(c.isAlphabetic(c)){
+                    if(c.isAlphabetic(c) || c.toString().equals("_")){
                         word += c.toString();
                         type = "A";
                     }
@@ -167,8 +172,11 @@ public class Token {
                 System.out.println("ERRO - SEM DESCRIÇÃO");
         }
         //Caso a última palavra não tenha sido armazenada
-        if(word != "")
+        if(word != "" && !(isCom))
             ArmazenaToken(word, type);
+        //Caso o comentário não tenha sido finalizado
+        if(isCom)
+            Compilador.Erro("Comentário não finalizado!");
         return tokenStack;
     }
 
@@ -212,7 +220,7 @@ public class Token {
     //Armazena Token em pilha
     private static Map<Integer, String> ArmazenaToken(String word, String type){
         Map<Integer,String> token = new HashMap<>();
-        if(word.equals(" ")){return null;}
+        if(word.equals(" ")||word.equals("")){return null;}
         //word = word.toUpperCase();
         if(type == "A"){
             switch (word.toUpperCase()){
@@ -252,27 +260,27 @@ public class Token {
             token.put(48,"LITERAL");
         else if(type == "D"){
             switch (word){
-                case "+": token.put(30, "CRUZ");break;
-                case "-": token.put(31, "HÍFEN");break;
-                case "*": token.put(32, "ASTERISCO");break;
-                case "/": token.put(33, "BARRA");break;
-                case "[": token.put(34, "A_COLCHETE");break;
-                case "]": token.put(35, "F_COLCHETE");break;
-                case "(": token.put(36, "A_PARENTESES");break;
-                case ")": token.put(37, "F_PARENTESES");break;
-                case ":=": token.put(38, "RECEBE");break;
-                case ":": token.put(39, "DOIS_PONTOS");break;
-                case "=": token.put(40, "IGUAL");break;
-                case ">": token.put(41, "MAIOR");break;
-                case ">=": token.put(42, "MAIOR_IGUAL");break;
-                case "<": token.put(43, "MENOR");break;
-                case "<=": token.put(44, "MENOR_IGUAL");break;
-                case "<>": token.put(45, "DIFERENTE");break;
-                case ",": token.put(46, "VIRGULA");break;
-                case ";": token.put(47, "PONTO_VIRGULA");break;
-                case ".": token.put(49, "PONTO");break;
-                case "..": token.put(50, "PONTO_DUPLO");break;
-                case "$": token.put(51, "CIFRÃO");break;
+                case "+": token.put(30, "+");break;
+                case "-": token.put(31, "-");break;
+                case "*": token.put(32, "*");break;
+                case "/": token.put(33, "/");break;
+                case "[": token.put(34, "[");break;
+                case "]": token.put(35, "]");break;
+                case "(": token.put(36, "(");break;
+                case ")": token.put(37, ")");break;
+                case ":=": token.put(38, ":=");break;
+                case ":": token.put(39, ":");break;
+                case "=": token.put(40, "=");break;
+                case ">": token.put(41, ">");break;
+                case ">=": token.put(42, ">=");break;
+                case "<": token.put(43, "<");break;
+                case "<=": token.put(44, "<=");break;
+                case "<>": token.put(45, "<>");break;
+                case ",": token.put(46, ",");break;
+                case ";": token.put(47, ";");break;
+                case ".": token.put(49, ".");break;
+                case "..": token.put(50, "..");break;
+                case "$": token.put(51, "$");break;
                 case "(*": return null;
                 default:
                     Compilador.Erro("Erro - Caracter "+ word +" invalido");break;
@@ -287,12 +295,13 @@ public class Token {
             return null;
         }
         System.out.println(token + " - " + word);
+        Compilador.MostraToken(token, word);
+        tokenStack.add(token);
         return null;
-        //TODO Criar função de armazenamento de Tokens
     }
 
     private static String encontraTipo(Character c){
-        if(c.isAlphabetic(c))
+        if(c.isAlphabetic(c) || c.toString().equals("_"))
             return "A";
         else if(c.isDigit(c))
             return "N";
