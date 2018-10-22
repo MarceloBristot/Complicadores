@@ -20,6 +20,9 @@ public class Token {
     }
 
     public static Stack<Map> Compile(String code){
+        //Limpa pilha de compilações anteriores
+        tokenStack.clear();
+
         //Variável para armazenar a palavra
         String word = "";
 
@@ -47,6 +50,12 @@ public class Token {
             //Novo ciclo de análise
             if(word == ""){
                 type = encontraTipo(c);
+            }
+            if(word.equals("-")){
+                if(c.toString().equals(" "))
+                    continue;
+                if(c.isDigit(c))
+                    type = encontraTipo(c);
             }
             if(word == "(*" || isCom){
                 if(word.equals("*") && c.toString().equals(")")){
@@ -92,7 +101,7 @@ public class Token {
                         word = c.toString();
                         //Salvar a palavra e aguardar, pode ou não ser delimitador composto
                     }
-                    else if (!(c.toString().equals(" ")) && !(c.toString().equals("\n"))){
+                    else if (!(c.toString().equals(" ")) && !(c.toString().equals("\n")) && !(c.toString().equals("\t"))  && !(c.toString().equals("\r"))){
                         ArmazenaToken(c.toString(), "D");
                     }
                 }
@@ -118,7 +127,7 @@ public class Token {
                         word = c.toString();
                         //Salvar a palavra e aguardar, pode ou não ser delimitador composto
                     }
-                    else if (!(c.toString().equals(" ")) && !(c.toString().equals("\n"))){
+                    else if (!(c.toString().equals(" ")) && !(c.toString().equals("\n")) && !(c.toString().equals("\t")) && !(c.toString().equals("\r"))){
                         ArmazenaToken(c.toString(), "D");
                     }
                 }
@@ -152,7 +161,7 @@ public class Token {
                     }
                 }
                 //Caso o caracter anterior não possa ser composto
-                 else if(!(c.toString().equals(" ")) && !(c.toString().equals("\n"))){
+                 else if(!(c.toString().equals(" ")) && !(c.toString().equals("\n")) && !(c.toString().equals("\t")) && !(c.toString().equals("\r"))){
                      if(IsDelComp(c.toString()))
                          word = c.toString();
                      else
@@ -186,7 +195,7 @@ public class Token {
 //            case '+': break;
 //            default:JOptionPane.showMessageDialog(null,"Caracter " + c + " não registrado!","Erro!",JOptionPane.ERROR_MESSAGE); return false;
 //        }
-        if(c.equals("+") || c.equals("-") || c.equals("*")|| c.equals("/")|| c.equals("[") || c.equals("]") || c.equals("(") || c.equals(")") || c.equals(":") || c.equals("=") || c.equals("<") || c.equals(">") || c.equals(",") || c.equals(".") || c.equals("$") || c.equals("\n"))
+        if(c.equals("+") || c.equals("-") || c.equals("*")|| c.equals("/")|| c.equals("[") || c.equals("]") || c.equals("(") || c.equals(")") || c.equals(":") || c.equals("=") || c.equals("<") || c.equals(">") || c.equals(",") || c.equals(".") || c.equals("$") || c.equals("\n") || c.equals("\t") || c.equals("\r"))
             return true;
         else
             return false;
@@ -194,7 +203,7 @@ public class Token {
 
     //Checa se caracter é delimitador com possibilidade de ser composto
     private static boolean IsDelComp(String c){
-        if(c.equals("<") || c.equals(">") || c.equals(".") || c.equals(":") || c.equals("("))
+        if(c.equals("<") || c.equals(">") || c.equals(".") || c.equals(":") || c.equals("(") || c.equals("-"))
             return true;
         else
             return false;

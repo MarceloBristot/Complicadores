@@ -15,7 +15,8 @@ public class Compilador extends JFrame {
     private JTable table = new JTable(null,colunas);
 
     private JTextArea textArea = new JTextArea("");
-    private JScrollPane scrollPane = new JScrollPane(textArea);
+    private JScrollPane scrollPane = new JScrollPane();
+    private JScrollPane scrollPaneToken = new JScrollPane();
     private static JTextArea tokensArea = new JTextArea("");
 
     private static JTextArea lineArea = new JTextArea("");
@@ -33,6 +34,7 @@ public class Compilador extends JFrame {
     //Build
     private JMenu menuAction = new JMenu("Ações");
     private JMenuItem menuCompile = new JMenuItem("Compilar");
+    private JMenuItem menuDebug =  new JMenuItem("Debugar");
     //Sobre
     private JMenu menuHelp = new JMenu("Ajuda");
     private JMenuItem menuAbout = new JMenuItem("Sobre");
@@ -94,10 +96,54 @@ public class Compilador extends JFrame {
             System.out.println(AnalisadorSintatico.Analisar(textArea.getText()));
         });
 
+        //Opção Debug
+        menuDebug.addActionListener(e->{
+            //Mensagem
+            System.out.println("Debugando...");
+
+            System.out.println(AnalisadorSintatico.Debugar(textArea.getText()));
+        });
+
         //Opção "Sobre"
         menuAbout.addActionListener(e->{
             JOptionPane.showMessageDialog(null, "Trabalho acadêmico para a aula de Compiladores \n Desenvolvido por Luiz Gustavo e Marcelo Filho","Sobre", JOptionPane.INFORMATION_MESSAGE);
         });
+
+
+            //JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
+            //JTextArea jTextArea1 = new javax.swing.JTextArea();
+
+
+        textArea.setColumns(20);
+        textArea.setRows(5);
+        scrollPane.setViewportView(textArea);
+
+        tokensArea.setColumns(20);
+        tokensArea.setRows(5);
+        scrollPaneToken.setViewportView(tokensArea);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addComponent(scrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 630, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addContainerGap(309, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addGap(0, 646, Short.MAX_VALUE)
+                                        .addComponent(scrollPaneToken, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+        layout.setVerticalGroup(
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 531, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addGap(0, 183, Short.MAX_VALUE)
+                                        .addComponent(scrollPaneToken, javax.swing.GroupLayout.PREFERRED_SIZE, 348, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+
+
 
         //Itens para a barra de opções
         menuFile.add(menuNew);
@@ -119,17 +165,20 @@ public class Compilador extends JFrame {
 
         //Caixa para visualização dos tokens - SOLUÇÃO ALTERNATIVA PROVISÓRIA
         tokensArea.setEditable(false);
-        tokensArea.setRows(10);
-        tokensArea.setBounds(700,70,500,530);
-        JScrollPane scroll = new JScrollPane(tokensArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        c.add(scroll);
-        c.add(tokensArea);
+//        tokensArea.setRows(10);
+//        tokensArea.setBounds(700,70,500,530);
+//        JScrollPane scroll = new JScrollPane(tokensArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+//        c.add(scroll);
+//        c.add(tokensArea);
 
 
         //Caixa de texto para edição
-        textArea.setBounds(50,0,600,600);
-        c.add(textArea);
-        c.add(scrollPane);
+        //textArea.setBounds(50,0,600,600);
+        //textArea.setColumns(20);
+        //textArea.setRows(5);
+        //scrollPane.setViewportView(textArea);
+        //c.add(textArea);
+        //c.add(scrollPane);
         //TODO Barra de rolagem na área de texto
 
         //Caixa de contagem de linha
@@ -152,5 +201,9 @@ public class Compilador extends JFrame {
 
     public static void Erro(String msg){
         JOptionPane.showMessageDialog(null,msg,"Erro",JOptionPane.ERROR_MESSAGE);
+    }
+
+    public static void MostraSintatico(String word){
+        lineArea.setText(lineArea.getText() + word);
     }
 }
