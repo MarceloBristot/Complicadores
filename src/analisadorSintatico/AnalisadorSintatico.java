@@ -14,9 +14,53 @@ public class AnalisadorSintatico {
         super();
     }
 
-    public static Stack<Map> Debugar(String code){
+    public static Stack<Map> Debugar(boolean first){
 
+        if(first){
+            stack = Token.Compile(Compilador.GetCode());
+            stack = Reverter(stack);
+
+            analisador.clear();
+            Map<Integer,String> programa = new HashMap<>();
+            programa.put(52,"PROGRAMA");
+            analisador.push(programa);
+        }
+
+        else {
+            if (stack.isEmpty()) {
+                if(!analisador.isEmpty())
+                    Compilador.Erro("Código faltando!");
+                else
+                    Compilador.Valido("Fim");
+                return null;
+            }
+            boolean compare = Compare(analisador.lastElement(), stack.lastElement());
+            if (!(compare))
+                return null;
+
+            //TODO MELHORAR MÉTODO
+            Stack<Map> aux = new Stack<>();
+            for(Map<Integer,String> i : analisador) {
+                aux.push(i);
+            }
+            Compilador.TextoSintatico(aux.toString());
+        }
         return null;
+    }
+
+    private static Stack<Map> PilhaToken(String code){
+        stack = Token.Compile(code);
+
+        System.out.println("Realizando análise sintática...");
+        //Inverte a pilha
+        stack = Reverter(stack);
+
+        //TODO MELHORAR MÉTODO DE ARMAZENAMENTO
+        Map<Integer,String> programa = new HashMap<>();
+        programa.put(52,"PROGRAMA");
+        analisador.clear();
+        analisador.push(programa);
+        return stack;
     }
 
     public static Stack<Map> Analisar(String code) {
@@ -35,16 +79,17 @@ public class AnalisadorSintatico {
 
         while(!(analisador.isEmpty())){
             if(stack.isEmpty()){
-                Compilador.Erro("Falta código!");
+                Compilador.Erro("Código faltando!");
             return null;}
             boolean compare = Compare(analisador.lastElement(),stack.lastElement());
             if(!(compare))
                 return null;
         }
+        Compilador.Valido("Exemplo válido!");
         return stack;
     }
 
-    private static Stack Reverter(Stack pilha) {
+    public static Stack Reverter(Stack pilha) {
         Stack aux = new Stack();
 
         while (!(pilha.isEmpty()))
@@ -191,13 +236,13 @@ public class AnalisadorSintatico {
                 else if(keyPr == 25)
                     array = new int[]{67,25};
                 else if(keyPr == 27)
-                    array = new int[]{66,17,77,28,77,36,26,27};
+                    array = new int[]{66,17,77,28,77,38,25,27};
                 else if (keyPr == 29)
-                    array = new int[]{7,84,10,77};
+                    array = new int[]{7,84,10,77,29};
                 break;
             case 67:
                 if(keyPr == 34 || keyPr == 38)
-                    array = new int[]{77,38,77};
+                    array = new int[]{77,38,68};
                 else if(keyPr == 39)
                     array = new int[]{66,39};
                 break;
@@ -242,7 +287,7 @@ public class AnalisadorSintatico {
                     array = new int[]{74,72,46};
                 break;
             case 75:
-                if(keyPr == 24 || keyPr == 25 || keyPr == 26 || keyPr == 36 || keyPr == 30 || keyPr == 31 || keyPr == 36)
+                if(keyPr == 24 || keyPr == 25 || keyPr == 26 || keyPr == 30 || keyPr == 31 || keyPr == 36)
                     array = new int[]{77};
                 else if(keyPr == 48)
                     array = new int[]{48};
@@ -254,7 +299,7 @@ public class AnalisadorSintatico {
                     array = new int[]{76,75,46};
                 break;
             case 77:
-                if(keyPr == 24 || keyPr == 25 || keyPr == 26 || keyPr == 36 || keyPr == 30 || keyPr == 31 || keyPr == 36)
+                if(keyPr == 24 || keyPr == 25 || keyPr == 26 || keyPr == 30 || keyPr == 31 || keyPr == 36)
                     array = new int[]{78,79};
                 break;
             case 78:
@@ -272,8 +317,8 @@ public class AnalisadorSintatico {
             case 80:
                 if(keyPr == 7 || keyPr == 10 || keyPr == 14 || keyPr == 15 || keyPr == 17 || keyPr == 19 || keyPr == 28 || keyPr == 35 || keyPr == 37 || (keyPr>39 && keyPr<48))
                     array = new int[]{};
-                else if(keyPr == 39)
-                    array = new int[]{};
+                else if(keyPr == 22 || keyPr == 30 || keyPr == 31)
+                    array = new int[]{80,81,keyPr};
                 break;
             case 81:
                 if((keyPr > 23 && keyPr < 27) || keyPr == 36)
@@ -313,6 +358,8 @@ public class AnalisadorSintatico {
                 break;
             default:break;
         }
+        System.out.println();
+        System.out.println(analisador);
         analisador.pop();
         if(array.length > 0) {
             for (int i : array)

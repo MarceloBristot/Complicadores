@@ -8,20 +8,25 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Stack;
 
 public class Compilador extends JFrame {
+
+    //public static Stack<Map> analisador = new Stack<>();
+    public static Stack<Map> tokens = new Stack<>();
 
     private String[] colunas = {"Código, Símbolo"};
     private JTable table = new JTable(null,colunas);
 
-    private JTextArea textArea = new JTextArea("");
+    private static JTextArea textArea = new JTextArea("");
     private JScrollPane scrollPane = new JScrollPane();
     private JScrollPane scrollPaneToken = new JScrollPane();
+    private JScrollPane scrollPaneSint = new JScrollPane();
     private static JTextArea tokensArea = new JTextArea("");
 
     private static JTextArea lineArea = new JTextArea("");
 
-    private JTextArea sintArea = new JTextArea("");
+    private static JTextArea sintArea = new JTextArea("");
 
 
 
@@ -41,6 +46,8 @@ public class Compilador extends JFrame {
 
     private String path = "";
     private JFileChooser fileChooser = new JFileChooser();
+
+    private JButton buttonDebug = new JButton("Debugar");
 
     public Compilador() {
 
@@ -94,14 +101,12 @@ public class Compilador extends JFrame {
 
 //            System.out.println(Token.Compile(textArea.getText()));
             System.out.println(AnalisadorSintatico.Analisar(textArea.getText()));
+            //tokens = AnalisadorSintatico.Analisar(textArea.getText());
         });
 
         //Opção Debug
         menuDebug.addActionListener(e->{
-            //Mensagem
-            System.out.println("Debugando...");
-
-            System.out.println(AnalisadorSintatico.Debugar(textArea.getText()));
+            AnalisadorSintatico.Debugar(true);
         });
 
         //Opção "Sobre"
@@ -122,13 +127,26 @@ public class Compilador extends JFrame {
         tokensArea.setRows(5);
         scrollPaneToken.setViewportView(tokensArea);
 
+        sintArea.setColumns(20);
+        sintArea.setRows(5);
+        scrollPaneSint.setViewportView(sintArea);
+
+        buttonDebug.setText("Debug");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
                 layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
                                 .addComponent(scrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 630, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap(309, Short.MAX_VALUE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addGap(18, 18, 18)
+                                                .addComponent(scrollPaneSint, javax.swing.GroupLayout.DEFAULT_SIZE, 291, Short.MAX_VALUE))
+                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                .addComponent(buttonDebug)
+                                                .addContainerGap())))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                         .addGap(0, 646, Short.MAX_VALUE)
@@ -137,11 +155,17 @@ public class Compilador extends JFrame {
         layout.setVerticalGroup(
                 layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 531, Short.MAX_VALUE)
+                        .addGroup(layout.createSequentialGroup()
+                                .addComponent(scrollPaneSint, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(buttonDebug)
+                                .addGap(0, 0, Short.MAX_VALUE))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                        .addGap(0, 183, Short.MAX_VALUE)
-                                        .addComponent(scrollPaneToken, javax.swing.GroupLayout.PREFERRED_SIZE, 348, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addGap(0, 219, Short.MAX_VALUE)
+                                        .addComponent(scrollPaneToken, javax.swing.GroupLayout.PREFERRED_SIZE, 312, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
+
 
 
 
@@ -150,6 +174,7 @@ public class Compilador extends JFrame {
         menuFile.add(menuOpen);
         menuFile.add(menuSave);
         menuAction.add(menuCompile);
+        menuAction.add(menuDebug);
         menuHelp.add(menuAbout);
 
         //Barra de opções
@@ -181,6 +206,14 @@ public class Compilador extends JFrame {
         //c.add(scrollPane);
         //TODO Barra de rolagem na área de texto
 
+        //Botão de debugar
+        buttonDebug.setBounds(600,100,100,100);
+        buttonDebug.addActionListener(e -> {
+            tokens = AnalisadorSintatico.Debugar(false);
+            //System.out.println(AnalisadorSintatico.Debugar(,false));
+        });
+        c.add(buttonDebug);
+
         //Caixa de contagem de linha
         lineArea.setBounds(0,0,25,600);
         lineArea.setEditable(false);
@@ -195,6 +228,10 @@ public class Compilador extends JFrame {
             tokensArea.setText(tokensArea.getText() + token + "'" + word + "' \n");
     }
 
+    public static void TextoSintatico(String token){
+        sintArea.setText(token);
+    }
+
 //    public static void AtualizaContagem(int n){
 //        lineArea.setText(lineArea.getText() + "\n" + n);
 //    }
@@ -203,7 +240,15 @@ public class Compilador extends JFrame {
         JOptionPane.showMessageDialog(null,msg,"Erro",JOptionPane.ERROR_MESSAGE);
     }
 
+    public static void Valido(String msg){
+        JOptionPane.showMessageDialog(null,msg,"Válido!",JOptionPane.INFORMATION_MESSAGE);
+    }
+
     public static void MostraSintatico(String word){
         lineArea.setText(lineArea.getText() + word);
+    }
+
+    public static String GetCode(){
+        return textArea.getText();
     }
 }

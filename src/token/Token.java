@@ -52,8 +52,8 @@ public class Token {
                 type = encontraTipo(c);
             }
             if(word.equals("-")){
-                if(c.toString().equals(" "))
-                    continue;
+//                if(c.toString().equals(" "))
+//                    continue;
                 if(c.isDigit(c))
                     type = encontraTipo(c);
             }
