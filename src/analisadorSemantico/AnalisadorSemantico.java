@@ -146,7 +146,7 @@ public class AnalisadorSemantico {
             case 72:
                 existeId(id);
                 if(id.categoria == 3 && id.declarado == 0){
-                    //
+                    //Para CONSTS
                 }
                 if(id.tipo != 8)
                     Compilador.Erro("Variável " + id.nome + " não é INTEGER (Linha "+ id.linha + ")" );
