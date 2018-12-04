@@ -1,5 +1,6 @@
 package compilador;
 
+import analisadorSemantico.AnalisadorSemantico;
 import analisadorSintatico.AnalisadorSintatico;
 import arquivo.Arquivo;
 import token.Token;
@@ -15,10 +16,18 @@ public class Compilador extends JFrame {
     //public static Stack<Map> analisador = new Stack<>();
     public static Stack<Map> tokens = new Stack<>();
 
-    private String[] colunas = {"Código, Símbolo"};
-    private JTable table = new JTable(null,colunas);
+    //private String[] colunas = {"Código, Símbolo"};
+    //private JTable table = new JTable(null,colunas);
+
+    private static JTable tokenTable = new javax.swing.JTable();
+    private static String tokenColunas[] = {"Código","Nome"};
+
+    private static JTable sintTable = new javax.swing.JTable();
+    //private static String sintColunas[] = {"Código","Nome"};
+
 
     private static JTextArea textArea = new JTextArea("");
+    private static JTextArea textLineCount = new JTextArea("");
     private JScrollPane scrollPane = new JScrollPane();
     private JScrollPane scrollPaneToken = new JScrollPane();
     private JScrollPane scrollPaneSint = new JScrollPane();
@@ -47,7 +56,7 @@ public class Compilador extends JFrame {
     private String path = "";
     private JFileChooser fileChooser = new JFileChooser();
 
-    private JButton buttonDebug = new JButton("Debugar");
+    private static JButton buttonDebug = new JButton("Debugar");
 
     public Compilador() {
 
@@ -63,7 +72,23 @@ public class Compilador extends JFrame {
         setContentPane(c);
 
 
-        table.setBounds(100,500,100,100);
+        //table.setBounds(100,500,100,100);
+        tokenTable.setModel(new javax.swing.table.DefaultTableModel(
+                new Object [][] {
+
+                },
+                tokenColunas
+        ));
+        scrollPaneToken.setViewportView(tokenTable);
+
+
+        sintTable.setModel(new javax.swing.table.DefaultTableModel(
+                new Object [][] {
+
+                },
+                tokenColunas
+        ));
+        scrollPaneSint.setViewportView(sintTable);
 
         //Ações dos botões da barra de menu
         //Opção "Novo"
@@ -101,12 +126,15 @@ public class Compilador extends JFrame {
 
 //            System.out.println(Token.Compile(textArea.getText()));
             System.out.println(AnalisadorSintatico.Analisar(textArea.getText()));
+            AnalisadorSemantico.listaIds();
+
             //tokens = AnalisadorSintatico.Analisar(textArea.getText());
         });
 
         //Opção Debug
         menuDebug.addActionListener(e->{
             AnalisadorSintatico.Debugar(true);
+            buttonDebug.setEnabled(true);
         });
 
         //Opção "Sobre"
@@ -119,19 +147,24 @@ public class Compilador extends JFrame {
             //JTextArea jTextArea1 = new javax.swing.JTextArea();
 
 
+        textLineCount.setColumns(1);
+        textLineCount.setRows(5);
+        scrollPane.setViewportView(textLineCount);
+
         textArea.setColumns(20);
         textArea.setRows(5);
         scrollPane.setViewportView(textArea);
 
-        tokensArea.setColumns(20);
-        tokensArea.setRows(5);
-        scrollPaneToken.setViewportView(tokensArea);
+        //tokensArea.setColumns(20);
+        //tokensArea.setRows(5);
+        //scrollPaneToken.setViewportView(tokensArea);
 
         sintArea.setColumns(20);
         sintArea.setRows(5);
-        scrollPaneSint.setViewportView(sintArea);
+        //scrollPaneSint.setViewportView(sintArea);
 
         buttonDebug.setText("Debug");
+        buttonDebug.setEnabled(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -189,7 +222,7 @@ public class Compilador extends JFrame {
         c.add(sintArea);
 
         //Caixa para visualização dos tokens - SOLUÇÃO ALTERNATIVA PROVISÓRIA
-        tokensArea.setEditable(false);
+        //tokensArea.setEditable(false);
 //        tokensArea.setRows(10);
 //        tokensArea.setBounds(700,70,500,530);
 //        JScrollPane scroll = new JScrollPane(tokensArea, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -221,15 +254,37 @@ public class Compilador extends JFrame {
         c.add(lineArea);
     }
 
-    public static void MostraToken(Map token, String word){
-        if(token == null && word == null)
-            tokensArea.setText("Compilando arquivo... \n");
-        else
-            tokensArea.setText(tokensArea.getText() + token + "'" + word + "' \n");
+    public static void MostraToken(Stack<Map> token){
+//        if(token == null && word == null)
+//            tokensArea.setText("Compilando arquivo... \n");
+//        else
+//            tokensArea.setText(tokensArea.getText() + token + "'" + word + "' \n");
+        Object[][] data = new Object[token.size()][2];
+        int i = 0;
+        for(Map<String,Integer> map : token){
+            for(Map.Entry<String,Integer> entry : map.entrySet()) {
+                data[i][0] = entry.getKey();
+                data[i][1] = entry.getValue();
+                i++;
+            }
+        }
+
+        tokenTable.setModel(new javax.swing.table.DefaultTableModel(data, tokenColunas));
     }
 
-    public static void TextoSintatico(String token){
-        sintArea.setText(token);
+    public static void TextoSintatico(Stack<Map> sint){
+        //sintArea.setText(token);
+        Object[][] data = new Object[sint.size()][2];
+        int i = 0;
+        for(Map<String,Integer> map : sint){
+            for(Map.Entry<String,Integer> entry : map.entrySet()) {
+                data[i][0] = entry.getKey();
+                data[i][1] = entry.getValue();
+                i++;
+            }
+        }
+
+        sintTable.setModel(new javax.swing.table.DefaultTableModel(data, tokenColunas));
     }
 
 //    public static void AtualizaContagem(int n){
@@ -237,11 +292,18 @@ public class Compilador extends JFrame {
 //    }
 
     public static void Erro(String msg){
-        JOptionPane.showMessageDialog(null,msg,"Erro",JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null,msg,"Erro!",JOptionPane.ERROR_MESSAGE);
+//        JOptionPane.showMessageDialog(null,msg,"Erro - Linha " + Token.NumLinha(),JOptionPane.ERROR_MESSAGE);
+        try {
+            System.err.wait();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void Valido(String msg){
         JOptionPane.showMessageDialog(null,msg,"Válido!",JOptionPane.INFORMATION_MESSAGE);
+        buttonDebug.setEnabled(false);
     }
 
     public static void MostraSintatico(String word){

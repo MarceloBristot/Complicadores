@@ -1,5 +1,6 @@
 package token;
 
+import analisadorSemantico.AnalisadorSemantico;
 import compilador.Compilador;
 
 import java.util.HashMap;
@@ -10,6 +11,7 @@ public class Token {
     private int cod;
     private String word;
     private static Stack<Map> tokenStack = new Stack();
+    public static int linhas = 1;
 
     //Booleano para saber se é comentário
     private static boolean isCom = false;
@@ -22,6 +24,11 @@ public class Token {
     public static Stack<Map> Compile(String code){
         //Limpa pilha de compilações anteriores
         tokenStack.clear();
+
+        //Zera contador de identifiacadores
+        AnalisadorSemantico.limparAnalise();
+
+        linhas = 1;
 
         //Variável para armazenar a palavra
         String word = "";
@@ -36,7 +43,7 @@ public class Token {
         System.out.println("Realizando análise léxica...");
 
         //Limpar tela de apresentação de tokens
-        Compilador.MostraToken(null,null);
+        //Compilador.MostraToken(null,null);
 
         //Começa como não comentado
         isCom = false;
@@ -47,6 +54,8 @@ public class Token {
 
         //Analisar cada caracter do código
         for(Character c : code.toCharArray()){
+            if(c == '\n')
+                linhas++;
             //Novo ciclo de análise
             if(word == ""){
                 type = encontraTipo(c);
@@ -186,6 +195,8 @@ public class Token {
         //Caso o comentário não tenha sido finalizado
         if(isCom)
             Compilador.Erro("Comentário não finalizado!");
+
+        Compilador.MostraToken(tokenStack);
         return tokenStack;
     }
 
@@ -233,13 +244,13 @@ public class Token {
         //word = word.toUpperCase();
         if(type == "A"){
             switch (word.toUpperCase()){
-                case "PROGRAM": token.put(1, "PROGRAM");break;
-                case "LABEL": token.put(2, "LABEL");break;
-                case "CONST": token.put(3, "CONST");break;
-                case "VAR": token.put(4, "VAR");break;
-                case "PROCEDURE": token.put(5, "PROCEDURE");break;
-                case "BEGIN": token.put(6, "BEGIN");break;
-                case "END": token.put(7, "END");break;
+                case "PROGRAM": AnalisadorSemantico.setCodigo(1); token.put(1, "PROGRAM");break;
+                case "LABEL": AnalisadorSemantico.setCodigo(2);token.put(2, "LABEL");break;
+                case "CONST": AnalisadorSemantico.setCodigo(3);token.put(3, "CONST");break;
+                case "VAR": AnalisadorSemantico.setCodigo(4);token.put(4, "VAR");break;
+                case "PROCEDURE": AnalisadorSemantico.setCodigo(5);token.put(5, "PROCEDURE");break;
+                case "BEGIN": AnalisadorSemantico.setCodigo(0);token.put(6, "BEGIN");break;
+                case "END": AnalisadorSemantico.removeNivel();token.put(7, "END");break;
                 case "INTEGER": token.put(8, "INTEGER");break;
                 case "ARRAY": token.put(9, "ARRAY");break;
                 case "OF": token.put(10, "OF");break;
@@ -260,7 +271,7 @@ public class Token {
                 case "FOR": token.put(27,"FOR");break;
                 case "TO": token.put(28,"TO");break;
                 case "CASE": token.put(29,"CASE");break;
-                default: token.put(25,"IDENTIFICADOR");break;
+                default: AnalisadorSemantico.insertIdTable(word.toUpperCase());token.put(25,"IDENTIFICADOR");break;
             }
         }
         else if(type == "N")
@@ -292,7 +303,7 @@ public class Token {
                 case "$": token.put(51, "$");break;
                 case "(*": return null;
                 default:
-                    Compilador.Erro("Erro - Caracter "+ word +" invalido");break;
+                    Compilador.Erro("Erro - Caracter "+ word +" invalido (Linha " + NumLinha() + ")");break;
             }
         }
         else if(type == "C"){
@@ -304,7 +315,7 @@ public class Token {
             return null;
         }
         System.out.println(token + " - " + word);
-        Compilador.MostraToken(token, word);
+        //Compilador.MostraToken(token, word);
         tokenStack.add(token);
         return null;
     }
@@ -316,6 +327,10 @@ public class Token {
             return "N";
         else
             return "D";
+    }
+
+    public static int NumLinha(){
+        return linhas;
     }
 
 }

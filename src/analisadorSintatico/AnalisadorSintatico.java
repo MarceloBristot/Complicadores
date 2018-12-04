@@ -1,6 +1,8 @@
 package analisadorSintatico;
 
+import analisadorSemantico.Identificador;
 import compilador.Compilador;
+import analisadorSemantico.AnalisadorSemantico;
 import token.Token;
 
 import java.util.HashMap;
@@ -43,7 +45,8 @@ public class AnalisadorSintatico {
             for(Map<Integer,String> i : analisador) {
                 aux.push(i);
             }
-            Compilador.TextoSintatico(aux.toString());
+            //Compilador.TextoSintatico(aux.toString());
+            Compilador.TextoSintatico(aux);
         }
         return null;
     }
@@ -77,10 +80,11 @@ public class AnalisadorSintatico {
         programa.put(52,"PROGRAMA");
         analisador.push(programa);
 
-        while(!(analisador.isEmpty())){
-            if(stack.isEmpty()){
+        while(!(stack.isEmpty())){
+            if(analisador.isEmpty()){
                 Compilador.Erro("Código faltando!");
             return null;}
+//            analisador.peek();
             boolean compare = Compare(analisador.lastElement(),stack.lastElement());
             if(!(compare))
                 return null;
@@ -107,14 +111,14 @@ public class AnalisadorSintatico {
     }
 
     private static boolean Compare(Map analise, Map programa) {
-        System.out.println("Análise: " + analise + " Programa: " + programa);
+        //System.out.println("Análise: " + analise + " Programa: " + programa);
         if (IsTerminal(analise)) {
             if (GetKey(analise) == GetKey(programa)) {
                 //Tá certo
                 analisador.pop();
                 stack.pop();
             } else{
-                Compilador.Erro("NÃO TÁ CERTO: " + programa);
+                Compilador.Erro("Erro: " + programa);
                 return false;
             }
         } else {
@@ -219,8 +223,10 @@ public class AnalisadorSintatico {
                     array = new int[]{64};
                 else if(keyPr == 7 || keyPr == 15 || keyPr == 19 || keyPr == 47)
                     array = new int[]{};
-                else if(keyPr == 11)
+                else if(keyPr == 11){//CALL
                     array = new int[]{69,25,11};
+                    AnalisadorSemantico.setAnalise(11);
+                }
                 else if(keyPr == 12)
                     array = new int[]{25,12};
                 else if(keyPr == 13)
@@ -271,8 +277,10 @@ public class AnalisadorSintatico {
                     array = new int[]{66,15};
                 break;
             case 72:
-                if(keyPr == 25)
+                if(keyPr == 25){
+                    AnalisadorSemantico.setAnalise(72);
                     array = new int[]{73,25};
+                }
                 break;
             case 73:
                 if(keyPr == 7 || keyPr == 10 || keyPr == 14 || keyPr == 15 || keyPr == 17 || keyPr == 19 || keyPr == 22 || keyPr == 23 || keyPr == 28 || (keyPr > 29 && keyPr < 34) || keyPr == 35 || keyPr == 37 || (keyPr > 39 && keyPr < 48))
@@ -299,8 +307,9 @@ public class AnalisadorSintatico {
                     array = new int[]{76,75,46};
                 break;
             case 77:
-                if(keyPr == 24 || keyPr == 25 || keyPr == 26 || keyPr == 30 || keyPr == 31 || keyPr == 36)
+                if(keyPr == 24 || keyPr == 25 || keyPr == 26 || keyPr == 30 || keyPr == 31 || keyPr == 36){
                     array = new int[]{78,79};
+                }
                 break;
             case 78:
                 if(keyPr == 7 || keyPr == 10 || keyPr == 14 || keyPr == 15 || keyPr == 17 || keyPr == 19 || keyPr == 28 || keyPr == 35 || keyPr == 37 || keyPr == 46 || keyPr == 47)
@@ -371,12 +380,12 @@ public class AnalisadorSintatico {
     private static Map<Integer, String> EncontraMap(int code){
         Map<Integer,String> token = new HashMap<>();
             switch (code){
-                case 1: token.put(1, "PROGRAM");break;
-                case 2: token.put(2, "LABEL");break;
-                case 3: token.put(3, "CONST");break;
-                case 4: token.put(4, "VAR");break;
-                case 5: token.put(5, "PROCEDURE");break;
-                case 6: token.put(6, "BEGIN");break;
+                case 1:token.put(1, "PROGRAM");break;
+                case 2:token.put(2, "LABEL");break;
+                case 3:token.put(3, "CONST");break;
+                case 4:token.put(4, "VAR");break;
+                case 5:token.put(5, "PROCEDURE");break;
+                case 6:token.put(6, "BEGIN");break;
                 case 7: token.put(7, "END");break;
                 case 8: token.put(8, "INTEGER");break;
                 case 9: token.put(9, "ARRAY");break;
@@ -395,7 +404,11 @@ public class AnalisadorSintatico {
                 case 22: token.put(22,"OR");break;
                 case 23: token.put(23,"AND");break;
                 case 24: token.put(24,"NOT");break;
-                case 25: token.put(25,"IDENTIFICADOR");break;
+                case 25:
+                    Identificador id = new Identificador();
+                    //id.setNome(analisador.);
+                    AnalisadorSemantico.checaId(id);
+                    token.put(25,"IDENTIFICADOR");break;
                 case 26: token.put(26,"INTEIRO");break;
                 case 27: token.put(27,"FOR");break;
                 case 28: token.put(28,"TO");break;
@@ -424,22 +437,22 @@ public class AnalisadorSintatico {
                 case 51: token.put(51, "$");break;
                 //Não terminais
                 case 53: token.put(53,"BLOCO");break;
-                case 54: token.put(54,"DCLROT");break;
+                case 54: AnalisadorSemantico.setCodigo(2);token.put(54,"DCLROT");break;
                 case 55: token.put(55,"LID");break;
                 case 56: token.put(56,"REPIDENT");break;
-                case 57: token.put(57,"DCLCONST");break;
+                case 57: AnalisadorSemantico.setCodigo(3);token.put(57,"DCLCONST");break;
                 case 58: token.put(58,"LDCCONST");break;
-                case 59: token.put(59,"DCLVAR");break;
+                case 59: AnalisadorSemantico.setCodigo(4);token.put(59,"DCLVAR");break;
                 case 60: token.put(60,"LDVAR");break;
                 case 61: token.put(61,"TIPO");break;
-                case 62: token.put(62,"DCLPROC");break;
+                case 62: AnalisadorSemantico.setCodigo(5);token.put(62,"DCLPROC");break;
                 case 63: token.put(63,"DEFPAR");break;
                 case 64: token.put(64,"CORPO");break;
                 case 65: token.put(65,"REPCOMANDO");break;
                 case 66: token.put(66,"COMANDO");break;
                 case 67: token.put(67,"RCOMID");break;
                 case 68: token.put(68,"RVAR");break;
-                case 69: token.put(69,"PARAMETROS");break;
+                case 69: AnalisadorSemantico.setCodigo(69);token.put(69,"PARAMETROS");break;
                 case 70: token.put(70,"REPPAR");break;
                 case 71: token.put(71,"ELSEPARTE");break;
                 case 72: token.put(72,"VARIAVEL");break;
@@ -458,7 +471,7 @@ public class AnalisadorSintatico {
                 case 85: token.put(85,"CONTCASE");break;
                 case 86: token.put(86,"RPINTEIRO");break;
                 case 87: token.put(87,"SEMEFEITO");break;
-                default: Compilador.Erro("Não tá certo!");break;
+                default: Compilador.Erro("Erro na sintaxe!");break;
             }
             return token;
         }
